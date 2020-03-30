@@ -10,22 +10,23 @@ def add_polygon( polygons, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
 def draw_polygons( polygons, screen, color ):
     point = 0
     while point < len(polygons) - 2:
-        draw_line( int(polygons[point][0]),
-                   int(polygons[point][1]),
-                   int(polygons[point + 1][0]),
-                   int(polygons[point + 1][1]),
-                   screen, color)
-        draw_line( int(polygons[point + 1][0]),
-                   int(polygons[point + 1][1]),
-                   int(polygons[point + 2][0]),
-                   int(polygons[point + 2][1]),
-                   screen, color)
-        draw_line( int(polygons[point + 2][0]),
-                   int(polygons[point + 2][1]),
-                   int(polygons[point][0]),
-                   int(polygons[point][1]),
-                   screen, color)
-        point += 3
+        if (calculate_normal(polygons, i)[2] > 0):
+            draw_line( int(polygons[point][0]),
+                       int(polygons[point][1]),
+                       int(polygons[point + 1][0]),
+                       int(polygons[point + 1][1]),
+                       screen, color)
+            draw_line( int(polygons[point + 1][0]),
+                       int(polygons[point + 1][1]),
+                       int(polygons[point + 2][0]),
+                       int(polygons[point + 2][1]),
+                       screen, color)
+            draw_line( int(polygons[point + 2][0]),
+                       int(polygons[point + 2][1]),
+                       int(polygons[point][0]),
+                       int(polygons[point][1]),
+                       screen, color)
+            point += 3
 
 
 def add_box( polygons, x, y, z, width, height, depth ):
@@ -77,7 +78,7 @@ def add_sphere(polygons, cx, cy, cz, r, steps ):
 
     lat = 0
     longt = 0
-    steps+= 1
+    steps += 1
 
     while lat < steps:
         longt = 0
@@ -85,7 +86,7 @@ def add_sphere(polygons, cx, cy, cz, r, steps ):
             index = lat * steps + longt
             if (index + steps + 1 < len(points)):
                 # if (index % steps != steps - 2):
-                if index < (len(points) - (1 + steps)): #right pole
+                if index < (len(points) - (1 + steps)): #left pole
                     add_polygon(polygons,
                         points[index][0],
                         points[index][1],
@@ -96,7 +97,7 @@ def add_sphere(polygons, cx, cy, cz, r, steps ):
                         points[index + steps + 1][0],
                         points[index + steps + 1][1],
                         points[index + steps + 1][2])
-                if (index % steps != 0): # left pole
+                if (index % steps != 0): # right pole
                     add_polygon(polygons,
                         points[index][0],
                         points[index][1],
@@ -107,8 +108,8 @@ def add_sphere(polygons, cx, cy, cz, r, steps ):
                         points[index + steps][0],
                         points[index + steps][1],
                         points[index + steps][2])
-            longt+=1
-        lat+=1
+            longt += 1
+        lat += 1
 
 def generate_sphere( cx, cy, cz, r, steps ):
     points = []
@@ -142,14 +143,48 @@ def add_torus(polygons, cx, cy, cz, r0, r1, steps ):
     for lat in range(lat_start, lat_stop):
         for longt in range(longt_start, longt_stop):
             index = lat * steps + longt
-
-            add_edge(polygons, points[index][0],
-                     points[index][1],
-                     points[index][2],
-                     points[index][0]+1,
-                     points[index][1]+1,
-                     points[index][2]+1 )
-
+            if (longt == steps - 1):
+                add_polygon(polygons,
+                            points[index][0],
+                            points[index][1],
+                            points[index][2],
+                            points[(index + steps) % len(points)][0],
+                            points[(index + steps) % len(points)][1],
+                            points[(index + steps) % len(points)][2],
+                            points[(lat * steps + steps) % len(points)][0],
+                            points[(lat * steps + steps) % len(points)][1],
+                            points[(lat * steps + steps) % len(points)][2])
+                add_polygon(polygons,
+                            points[index][0],
+                            points[index][1],
+                            points[index][2],
+                            points[(lat * steps + steps) % len(points)][0],
+                            points[(lat * steps + steps) % len(points)][1],
+                            points[(lat * steps + steps) % len(points)][2],
+                            points[lat * steps][0],
+                            points[lat * steps][1],
+                            points[lat * steps][2])
+            else:
+                add_polygon(polygons,
+                            points[index][0],
+                            points[index][1],
+                            points[index][2],
+                            points[(index + steps) % len(points)][0],
+                            points[(index + steps) % len(points)][1],
+                            points[(index + steps) % len(points)][2],
+                            points[(index + 1 + steps) % len(points)][0],
+                            points[(index + 1 + steps) % len(points)][1],
+                            points[(index + 1 + steps) % len(points)][2])
+                add_polygon(polygons,
+                            points[index][0],
+                            points[index][1],
+                            points[index][2],
+                            points[(index + 1 + steps) % len(points)][0],
+                            points[(index + 1 + steps) % len(points)][1],
+                            points[(index + 1 + steps) % len(points)][2],
+                            points[index + 1][0],
+                            points[index + 1][1],
+                            points[index + 1][2])
 def generate_torus( cx, cy, cz, r0, r1, steps ):
     points = []
     rot_start = 0

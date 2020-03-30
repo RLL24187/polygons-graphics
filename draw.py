@@ -10,7 +10,7 @@ def add_polygon( polygons, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
 def draw_polygons( polygons, screen, color ):
     point = 0
     while point < len(polygons) - 2:
-        if (calculate_normal(polygons, i)[2] > 0):
+        if (calculate_normal(polygons, point)[2] > 0):
             draw_line( int(polygons[point][0]),
                        int(polygons[point][1]),
                        int(polygons[point + 1][0]),

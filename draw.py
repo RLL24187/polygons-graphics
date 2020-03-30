@@ -75,22 +75,40 @@ def add_box( polygons, x, y, z, width, height, depth ):
 def add_sphere(polygons, cx, cy, cz, r, steps ):
     points = generate_sphere(cx, cy, cz, r, steps)
 
-    lat_start = 0
-    lat_stop = steps
-    longt_start = 0
-    longt_stop = steps
-
+    lat = 0
+    longt = 0
     steps+= 1
-    for lat in range(lat_start, lat_stop):
-        for longt in range(longt_start, longt_stop+1):
-            index = lat * steps + longt
 
-            add_edge(polygons, points[index][0],
-                     points[index][1],
-                     points[index][2],
-                     points[index][0]+1,
-                     points[index][1]+1,
-                     points[index][2]+1 )
+    while lat < steps:
+        longt = 0
+        while longt < steps:
+            index = lat * steps + longt
+            if (index + steps + 1 < len(points)):
+                # if (index % steps != steps - 2):
+                if index < (len(points) - (1 + steps)): #right pole
+                    add_polygon(polygons,
+                        points[index][0],
+                        points[index][1],
+                        points[index][2],
+                        points[index + 1][0],
+                        points[index + 1][1],
+                        points[index + 1][2],
+                        points[index + steps + 1][0],
+                        points[index + steps + 1][1],
+                        points[index + steps + 1][2])
+                if (index % steps != 0): # left pole
+                    add_polygon(polygons,
+                        points[index][0],
+                        points[index][1],
+                        points[index][2],
+                        points[index + steps + 1][0],
+                        points[index + steps + 1][1],
+                        points[index + steps + 1][2],
+                        points[index + steps][0],
+                        points[index + steps][1],
+                        points[index + steps][2])
+            longt+=1
+        lat+=1
 
 def generate_sphere( cx, cy, cz, r, steps ):
     points = []
